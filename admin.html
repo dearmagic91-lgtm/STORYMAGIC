@@ -114,6 +114,29 @@
   </div>
 </div>
 
+<!-- ===== GitHub 연결 화면 ===== -->
+<div class="login-screen" id="connectScreen" style="display:none;">
+  <div class="login-card" style="max-width:440px;">
+    <div class="badge">🔗</div>
+    <h1>GitHub 연결</h1>
+    <p>사이트를 실시간으로 수정하려면 GitHub 개인 액세스 토큰이 필요합니다.</p>
+    <input type="password" id="tokenInput" placeholder="토큰 붙여넣기 (ghp_... 또는 github_pat_...)" autocomplete="off" style="letter-spacing:normal;text-align:left;font-size:13px;">
+    <button class="btn btn-primary" id="connectBtn">연결하기</button>
+    <div class="login-error" id="connectError"></div>
+    <details style="margin-top:18px;text-align:left;font-size:12.5px;color:var(--ink-500);line-height:1.7;">
+      <summary style="cursor:pointer;font-weight:700;color:var(--ink-700);">토큰은 어떻게 만드나요?</summary>
+      <ol style="margin:10px 0 0 18px;padding:0;">
+        <li>github.com 로그인 → 오른쪽 위 프로필 사진 → Settings</li>
+        <li>왼쪽 맨 아래 Developer settings</li>
+        <li>Personal access tokens → Fine-grained tokens → Generate new token</li>
+        <li>Repository access를 "Only select repositories"로 선택 후 STORYMAGIC 선택</li>
+        <li>Permissions → Contents 를 "Read and write"로 설정</li>
+        <li>Generate token 후 나오는 값을 복사해서 여기에 붙여넣기 (한 번만 보여주니 꼭 복사해두세요)</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
 <!-- ===== 관리자 대시보드 ===== -->
 <div id="dashboard" style="display:none;">
   <div class="topbar">
@@ -125,17 +148,10 @@
 
   <div class="wrap">
 
-    <!-- STEP 0 : 파일 불러오기 -->
+    <!-- STEP 0 : 불러오기 상태 -->
     <div class="panel">
-      <div class="panel-head"><h2><span class="panel-num">1</span>홈페이지 파일 불러오기</h2></div>
-      <p class="desc">먼저 현재 사용 중인 홈페이지 HTML 파일(예: 임휘구마술_홈페이지.html)을 선택해주세요. 불러온 파일을 기준으로 영상·사진을 수정한 뒤, 새 파일로 저장(다운로드)합니다.</p>
-      <label class="file-drop" id="htmlDrop">
-        <input type="file" id="htmlFileInput" accept=".html,text/html">
-        <div class="icon">📄</div>
-        <div class="main">클릭하거나 파일을 끌어다 놓으세요</div>
-        <div class="sub">.html 파일만 가능</div>
-      </label>
-      <div class="file-status" id="fileStatus"></div>
+      <div class="panel-head"><h2><span class="panel-num">1</span>불러오기 상태</h2></div>
+      <p class="desc" id="loadStatus">GitHub에서 최신 내용을 불러오는 중입니다...</p>
     </div>
 
     <!-- STEP 1 : 히어로 영상 -->
@@ -175,8 +191,8 @@
   </div>
 
   <div class="save-bar">
-    <div class="note" id="saveNote">1번에서 파일을 먼저 불러와주세요.</div>
-    <button class="btn btn-dark" id="downloadBtn" disabled>변경사항 저장 (파일 다운로드)</button>
+    <div class="note" id="saveNote">불러오는 중입니다...</div>
+    <button class="btn btn-dark" id="publishBtn" disabled>지금 사이트에 반영하기</button>
   </div>
 </div>
 
@@ -184,9 +200,62 @@
 
 <script>
 (function(){
+  // ===================== GitHub 연동 설정 =====================
+  const REPO = 'dearmagic91-lgtm/STORYMAGIC';
+  const BRANCH = 'main';
+  const FILE_PATH = 'index.html';
+  const TOKEN_KEY = 'hwigu_gh_token';
+
+  function utf8ToBase64(str){
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    bytes.forEach(b => { binary += String.fromCharCode(b); });
+    return btoa(binary);
+  }
+  function base64ToUtf8(b64){
+    const binary = atob(b64.replace(/\n/g, ''));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  async function fetchIndexFile(token){
+    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`, {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' },
+    });
+    if (!res.ok) {
+      if (res.status === 401) throw new Error('토큰이 유효하지 않습니다. 다시 확인해주세요.');
+      if (res.status === 404) throw new Error('index.html 파일을 찾을 수 없습니다. 저장소를 확인해주세요.');
+      throw new Error('GitHub에서 파일을 불러오지 못했습니다. (오류 ' + res.status + ')');
+    }
+    const data = await res.json();
+    return { text: base64ToUtf8(data.content), sha: data.sha };
+  }
+
+  async function saveIndexFile(token, newText, sha){
+    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: '관리자 페이지에서 콘텐츠 업데이트',
+        content: utf8ToBase64(newText),
+        sha: sha,
+        branch: BRANCH,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (res.status === 409) throw new Error('다른 곳에서 먼저 저장되어 충돌이 발생했습니다. 새로고침 후 다시 시도해주세요.');
+      if (res.status === 401 || res.status === 403) throw new Error('권한이 없습니다. 토큰을 다시 확인해주세요.');
+      throw new Error(err.message || '저장에 실패했습니다.');
+    }
+    return await res.json();
+  }
+
   // ===================== 로그인 =====================
   const PW_HASH = '8cd0a5e42e99acd2352e15cf28b3592158d9f25778a262ddfb655f4c17e64c5d';
   const loginScreen = document.getElementById('loginScreen');
+  const connectScreen = document.getElementById('connectScreen');
   const dashboard = document.getElementById('dashboard');
   const pwInput = document.getElementById('pwInput');
   const loginBtn = document.getElementById('loginBtn');
@@ -197,6 +266,16 @@
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
+  function goToDashboardOrConnect(){
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (token) {
+      dashboard.style.display = 'block';
+      initDashboard();
+    } else {
+      connectScreen.style.display = 'flex';
+    }
+  }
+
   async function tryLogin(){
     const val = pwInput.value.trim();
     if (!val) return;
@@ -204,9 +283,8 @@
     if (hash === PW_HASH) {
       sessionStorage.setItem('hwigu_admin_authed', '1');
       loginScreen.style.display = 'none';
-      dashboard.style.display = 'block';
       loginError.textContent = '';
-      initDashboard();
+      goToDashboardOrConnect();
     } else {
       loginError.textContent = '비밀번호가 올바르지 않습니다.';
       pwInput.value = '';
@@ -216,15 +294,42 @@
   loginBtn.addEventListener('click', tryLogin);
   pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
 
+  // ===================== GitHub 토큰 연결 =====================
+  const tokenInput = document.getElementById('tokenInput');
+  const connectBtn = document.getElementById('connectBtn');
+  const connectError = document.getElementById('connectError');
+
+  async function tryConnect(){
+    const val = tokenInput.value.trim();
+    if (!val) return;
+    connectBtn.disabled = true;
+    connectBtn.textContent = '확인 중...';
+    connectError.textContent = '';
+    try {
+      await fetchIndexFile(val);
+      sessionStorage.setItem(TOKEN_KEY, val);
+      connectScreen.style.display = 'none';
+      dashboard.style.display = 'block';
+      initDashboard();
+    } catch (err) {
+      connectError.textContent = err.message || '연결에 실패했습니다.';
+    } finally {
+      connectBtn.disabled = false;
+      connectBtn.textContent = '연결하기';
+    }
+  }
+  connectBtn.addEventListener('click', tryConnect);
+  tokenInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryConnect(); });
+
   document.getElementById('logoutBtn').addEventListener('click', () => {
     sessionStorage.removeItem('hwigu_admin_authed');
+    sessionStorage.removeItem(TOKEN_KEY);
     location.reload();
   });
 
   if (sessionStorage.getItem('hwigu_admin_authed') === '1') {
     loginScreen.style.display = 'none';
-    dashboard.style.display = 'block';
-    initDashboard();
+    goToDashboardOrConnect();
   }
 
   // ===================== 대시보드 =====================
@@ -238,8 +343,8 @@
     const DRAFT_KEY = 'hwigu_admin_draft_v1';
 
     const state = {
-      fileName: null,
       fullHtmlText: null,
+      sha: null,
       heroVideo: '',
       gallery: ['', '', '', '', '', '', ''],
       cards: { performance: ['', '', ''], event: ['', '', ''], education: ['', '', ''] },
@@ -271,49 +376,39 @@
       return html.slice(0, contentStart) + '\n' + JSON.stringify(dataObj, null, 2) + '\n' + html.slice(endIdx);
     }
 
-    // ---------- 1. 파일 불러오기 ----------
-    const htmlDrop = document.getElementById('htmlDrop');
-    const htmlFileInput = document.getElementById('htmlFileInput');
-    const fileStatus = document.getElementById('fileStatus');
-    const downloadBtn = document.getElementById('downloadBtn');
+    // ---------- 1. GitHub에서 불러오기 ----------
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    const loadStatusEl = document.getElementById('loadStatus');
+    const publishBtn = document.getElementById('publishBtn');
     const saveNote = document.getElementById('saveNote');
 
-    function handleHtmlFile(file){
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
+    async function loadFromGithub(){
+      loadStatusEl.textContent = 'GitHub에서 최신 내용을 불러오는 중입니다...';
+      publishBtn.disabled = true;
+      try {
+        const { text, sha } = await fetchIndexFile(token);
         state.fullHtmlText = text;
-        state.fileName = file.name;
+        state.sha = sha;
         const existing = extractSiteContent(text);
-        if (existing) {
-          state.heroVideo = existing.heroVideo || '';
-          state.gallery = (existing.gallery && existing.gallery.length ? existing.gallery : state.gallery).slice(0, 7);
-          while (state.gallery.length < 7) state.gallery.push('');
-          ['performance', 'event', 'education'].forEach((key) => {
-            const arr = (existing.cards && existing.cards[key]) || ['', '', ''];
-            state.cards[key] = [arr[0] || '', arr[1] || '', arr[2] || ''];
-          });
-          fileStatus.textContent = '"' + file.name + '" 파일을 불러왔습니다. 기존에 저장된 영상/사진 정보가 있으면 자동으로 채워졌습니다.';
-        } else {
-          fileStatus.textContent = '"' + file.name + '" 파일을 불러왔습니다. 이 파일에는 관리자 데이터 블록이 없어 새로 저장할 수 없습니다. 최신 버전의 홈페이지 파일을 사용해주세요.';
-        }
-        fileStatus.classList.add('show');
-        downloadBtn.disabled = !existing;
-        saveNote.textContent = existing ? '수정 후 아래 버튼으로 저장하세요.' : '이 파일은 저장할 수 없습니다.';
+        if (!existing) throw new Error('site-content 블록을 찾을 수 없습니다. index.html 파일을 확인해주세요.');
+        state.heroVideo = existing.heroVideo || '';
+        state.gallery = (existing.gallery && existing.gallery.length ? existing.gallery : state.gallery).slice(0, 7);
+        while (state.gallery.length < 7) state.gallery.push('');
+        ['performance', 'event', 'education'].forEach((key) => {
+          const arr = (existing.cards && existing.cards[key]) || ['', '', ''];
+          state.cards[key] = [arr[0] || '', arr[1] || '', arr[2] || ''];
+        });
+        loadStatusEl.textContent = '✅ GitHub 저장소(' + REPO + ')에서 최신 내용을 불러왔습니다.';
+        saveNote.textContent = '수정 후 아래 버튼으로 사이트에 반영하세요.';
+        publishBtn.disabled = false;
         renderVideoField();
         renderAllSlots();
-      };
-      reader.readAsText(file, 'utf-8');
+      } catch (err) {
+        loadStatusEl.textContent = '❌ ' + (err.message || '불러오기에 실패했습니다.');
+        toast(err.message || '불러오기 중 오류가 발생했습니다.');
+      }
     }
-    htmlFileInput.addEventListener('change', (e) => handleHtmlFile(e.target.files[0]));
-    htmlDrop.addEventListener('dragover', (e) => { e.preventDefault(); htmlDrop.classList.add('drag'); });
-    htmlDrop.addEventListener('dragleave', () => htmlDrop.classList.remove('drag'));
-    htmlDrop.addEventListener('drop', (e) => {
-      e.preventDefault();
-      htmlDrop.classList.remove('drag');
-      if (e.dataTransfer.files[0]) handleHtmlFile(e.dataTransfer.files[0]);
-    });
+    loadFromGithub();
 
     // ---------- 2. 영상 링크 ----------
     const videoUrlInput = document.getElementById('videoUrl');
@@ -506,22 +601,25 @@
       saveDraft();
     });
 
-    // ---------- 저장 (다운로드) ----------
-    downloadBtn.addEventListener('click', () => {
+    // ---------- 저장 (GitHub에 바로 반영) ----------
+    publishBtn.addEventListener('click', async () => {
       if (!state.fullHtmlText) return;
+      publishBtn.disabled = true;
+      publishBtn.textContent = '반영 중...';
       try {
         const dataObj = { heroVideo: state.heroVideo.trim(), gallery: state.gallery, cards: state.cards };
         const finalHtml = replaceSiteContent(state.fullHtmlText, dataObj);
-        const blob = new Blob([finalHtml], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = state.fileName || '임휘구마술_홈페이지.html';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        toast('파일이 다운로드되었습니다. 기존 홈페이지 파일을 이 파일로 교체해주세요.');
+        const result = await saveIndexFile(token, finalHtml, state.sha);
+        state.sha = result.content.sha;
+        state.fullHtmlText = finalHtml;
+        localStorage.removeItem(DRAFT_KEY);
+        toast('저장 완료! 1~2분 후 실제 사이트에 반영됩니다.');
       } catch (err) {
         toast(err.message || '저장 중 오류가 발생했습니다.');
+        if (/충돌/.test(err.message || '')) loadFromGithub();
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = '지금 사이트에 반영하기';
       }
     });
 
