@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이야기엔터테인먼트 | 마술사 임휘구 공연·행사·교육</title>
+<meta name="description" content="이야기엔터테인먼트 · 마술사 임휘구 - 유치원·학교·기업·가족행사를 위한 마술 공연, 행사 진행, 교육 체험 프로그램">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --orange-500:oklch(68% 0.19 42);
+    --orange-600:oklch(60% 0.19 42);
+    --orange-50:oklch(97% 0.03 42);
+    --magic-700:oklch(38% 0.13 300);
+    --ink-900:oklch(18% 0.01 280);
+    --ink-700:oklch(38% 0.01 280);
+    --ink-500:oklch(55% 0.01 280);
+    --ink-300:oklch(78% 0.01 280);
+    --ink-200:oklch(90% 0.006 280);
+    --ink-100:oklch(96% 0.004 280);
+    --paper:oklch(98.5% 0.006 70);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
+    background:var(--paper);
+    color:var(--ink-900);
+    width:100%;
+    overflow-x:hidden;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  .container{max-width:1240px;margin:0 auto;padding:0 24px;}
+  .section-label{
+    font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--orange-600);
+    text-transform:uppercase;margin-bottom:14px;
+  }
+  .section-label.light{color:rgba(255,255,255,.85);}
+  h2{font-weight:800;font-size:clamp(26px,4vw,40px);letter-spacing:-0.02em;line-height:1.3;}
+  .section-desc{font-size:16px;line-height:1.7;color:var(--ink-700);margin-top:14px;max-width:520px;}
+
+  /* reveal on scroll */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1);}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:14px 24px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s,box-shadow .2s;}
+  .btn-primary{background:var(--orange-500);color:#fff;}
+  .btn-primary:hover{background:var(--orange-600);transform:translateY(-1px);box-shadow:0 10px 24px rgba(240,120,60,.28);}
+  .btn-ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(4px);}
+  .btn-ghost:hover{background:rgba(255,255,255,.24);}
+  .btn-dark{background:var(--ink-900);color:#fff;}
+  .btn-dark:hover{background:#000;}
+  .btn-pill{background:var(--orange-500);color:#fff;padding:10px 18px;font-size:14px;}
+  .btn-pill:hover{background:var(--orange-600);}
+
+  /* placeholder media blocks (실제 사진/영상 교체 전 임시 표시) */
+  .media-placeholder{
+    width:100%;height:100%;border-radius:20px;
+    background:repeating-linear-gradient(135deg,var(--orange-50),var(--orange-50) 12px,var(--ink-100) 12px,var(--ink-100) 24px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:var(--ink-500);font-size:13px;line-height:1.6;padding:16px;
+  }
+  .media-placeholder .icon{font-size:28px;margin-bottom:8px;color:var(--orange-500);}
+  .media-placeholder span{display:block;font-size:11px;color:var(--ink-300);margin-top:4px;}
+
+  /* ===== HEADER ===== */
+  .site-header{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent;}
+  .site-header.scrolled{background:rgba(252,250,246,.88);backdrop-filter:blur(12px);border-bottom-color:var(--ink-200);}
+  .header-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{text-decoration:none;color:var(--ink-900);display:flex;flex-direction:column;gap:2px;line-height:1.2;}
+  .logo-main{font-weight:800;font-size:20px;letter-spacing:-0.02em;}
+  .logo-main .logo-accent{color:var(--orange-500);}
+  .logo-sub{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--ink-500);text-transform:uppercase;}
+  .nav-desktop{display:flex;gap:32px;}
+  .nav-desktop a{font-size:15px;font-weight:600;text-decoration:none;color:var(--ink-700);}
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .hamburger{display:none;flex-direction:column;gap:4px;width:36px;height:36px;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;}
+  .hamburger span{width:20px;height:2px;background:var(--ink-900);border-radius:2px;transition:transform .25s,opacity .25s;}
+  .hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .hamburger.open span:nth-child(2){opacity:0;}
+  .hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+  .nav-mobile{display:none;flex-direction:column;gap:14px;background:var(--paper);border-top:1px solid var(--ink-200);padding:18px 24px 24px;}
+  .nav-mobile a{font-size:16px;font-weight:600;text-decoration:none;color:var(--ink-700);}
+  .nav-mobile.open{display:flex;}
+
+  @media (max-width:1024px){
+    .nav-desktop{display:none;}
+    .header-actions .btn-pill{display:none;}
+    .hamburger{display:flex;}
+  }
+
+  /* ===== HERO ===== */
+  .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;}
+  .hero-media{position:absolute;inset:0;z-index:0;}
+  .hero-media video,.hero-media iframe{width:100%;height:100%;object-fit:cover;border:0;}
+  .hero-media .media-placeholder{border-radius:0;background:
+    repeating-linear-gradient(135deg,oklch(30% 0.02 280),oklch(30% 0.02 280) 14px,oklch(24% 0.02 280) 14px,oklch(24% 0.02 280) 28px);
+    color:rgba(255,255,255,.55);
+  }
+  .hero-media .media-placeholder .icon{color:var(--orange-500);font-size:40px;}
+  .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,14,.35) 0%,rgba(10,10,14,.55) 55%,rgba(10,10,14,.78) 100%);z-index:1;}
+  .hero-content{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:140px 24px 90px;width:100%;}
+  .hero-content .eyebrow{font-family:'Pretendard';font-weight:600;font-size:14px;letter-spacing:.05em;color:var(--orange-500);text-transform:uppercase;margin-bottom:20px;}
+  .hero-content h1{font-weight:800;font-size:clamp(34px,6vw,64px);line-height:1.25;letter-spacing:-0.02em;color:#fff;margin-bottom:22px;}
+  .hero-content h1 .accent{color:var(--orange-500);}
+  .hero-content .hero-sub{font-size:clamp(16px,2vw,18px);line-height:1.7;color:rgba(255,255,255,.85);margin-bottom:34px;max-width:520px;}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;}
+  .scroll-cue{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,.7);font-size:12px;letter-spacing:.08em;}
+  .scroll-cue span{width:1px;height:34px;background:linear-gradient(180deg,rgba(255,255,255,.8),transparent);animation:scrollcue 1.8s ease-in-out infinite;}
+  @keyframes scrollcue{0%{opacity:0;transform:scaleY(.3);transform-origin:top;}50%{opacity:1;transform:scaleY(1);transform-origin:top;}100%{opacity:0;transform:scaleY(.3);transform-origin:bottom;}}
+
+  /* ===== PORTFOLIO ===== */
+  .portfolio{padding:110px 0;}
+  .gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:16px;margin-top:48px;}
+  .gallery-item{border-radius:16px;overflow:hidden;cursor:pointer;position:relative;}
+  .gallery-item img{width:100%;height:100%;object-fit:cover;}
+  .gallery-item:nth-child(1){grid-column:span 2;grid-row:span 2;}
+  .gallery-item:nth-child(4){grid-row:span 2;}
+  .gallery-item:hover .media-placeholder{transform:scale(1.04);}
+  .gallery-item .media-placeholder{border-radius:16px;transition:transform .4s ease;}
+  @media (max-width:1024px){
+    .gallery-grid{grid-template-columns:repeat(3,1fr);grid-auto-rows:150px;}
+  }
+  @media (max-width:640px){
+    .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:130px;}
+    .gallery-item:nth-child(1){grid-column:span 2;grid-row:span 1;}
+    .gallery-item:nth-child(4){grid-row:span 1;}
+  }
+
+  /* lightbox */
+  .lightbox{position:fixed;inset:0;background:rgba(10,10,14,.9);z-index:200;display:none;align-items:center;justify-content:center;padding:32px;}
+  .lightbox.open{display:flex;}
+  .lightbox-inner{max-width:820px;width:100%;aspect-ratio:4/3;}
+  .lightbox-close{position:absolute;top:24px;right:28px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;line-height:1;}
+
+  /* ===== MESSAGE ===== */
+  .message{padding:130px 0;background:var(--ink-900);position:relative;overflow:hidden;}
+  .message::before{content:"✦";position:absolute;top:12%;left:8%;font-size:60px;color:var(--orange-500);opacity:.15;}
+  .message::after{content:"✦";position:absolute;bottom:14%;right:10%;font-size:44px;color:var(--orange-500);opacity:.12;}
+  .message-inner{text-align:center;}
+  .message-quote{font-weight:800;font-size:clamp(22px,3.4vw,36px);line-height:1.55;letter-spacing:-0.01em;color:#fff;max-width:760px;margin:0 auto 28px;}
+  .message-sign{font-size:15px;color:rgba(255,255,255,.6);font-weight:600;}
+
+  /* ===== CONTENTS ===== */
+  .contents{padding:110px 0;background:var(--ink-100);}
+  .tabs{display:flex;gap:10px;margin-top:44px;margin-bottom:40px;flex-wrap:wrap;}
+  .tab{background:#fff;border:1px solid var(--ink-200);color:var(--ink-700);font-weight:700;font-size:15px;padding:12px 24px;border-radius:999px;cursor:pointer;font-family:inherit;transition:background .2s,color .2s,border-color .2s;}
+  .tab.active{background:var(--orange-500);border-color:var(--orange-500);color:#fff;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .content-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .content-card{background:#fff;border:1px solid var(--ink-200);border-radius:20px;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+  .content-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(20,22,28,.1);}
+  .content-card .card-img{aspect-ratio:4/3;}
+  .content-card .card-img .media-placeholder{border-radius:0;}
+  .content-card .card-img img,.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;}
+  .content-card .card-body{padding:22px;}
+  .content-card .card-badge{font-family:'Pretendard';font-weight:700;font-size:12px;color:var(--orange-600);margin-bottom:8px;letter-spacing:.02em;}
+  .content-card h3{font-size:19px;font-weight:800;margin-bottom:8px;letter-spacing:-0.01em;}
+  .content-card p{font-size:14.5px;line-height:1.7;color:var(--ink-700);}
+  @media (max-width:1024px){.content-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){.content-grid{grid-template-columns:1fr;} .tabs{gap:8px;} .tab{padding:10px 18px;font-size:14px;}}
+
+  /* ===== CONTACT ===== */
+  .contact{padding:110px 0;background:linear-gradient(120deg,var(--orange-600),var(--orange-500));position:relative;overflow:hidden;color:#fff;}
+  .contact-inner{display:grid;grid-template-columns:1fr 1.1fr;gap:64px;position:relative;z-index:1;}
+  .contact h2{color:#fff;}
+  .contact-info p{font-size:16px;line-height:1.75;color:rgba(255,255,255,.9);margin-top:16px;max-width:420px;}
+  .contact-list{list-style:none;margin-top:32px;display:flex;flex-direction:column;gap:14px;}
+  .contact-list li{font-size:16px;font-weight:600;display:flex;align-items:center;gap:10px;}
+  .sns-row{display:flex;gap:12px;margin-top:32px;}
+  .sns-row a{width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-size:16px;border:1px solid rgba(255,255,255,.35);}
+  .contact-form{background:#fff;border-radius:24px;padding:36px;color:var(--ink-900);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .contact-form label{display:block;font-size:13px;font-weight:700;color:var(--ink-700);margin-bottom:6px;}
+  .contact-form input,.contact-form textarea{width:100%;border:1px solid var(--ink-200);background:var(--ink-100);border-radius:12px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s;}
+  .contact-form input:focus,.contact-form textarea:focus{border-color:var(--orange-500);}
+  .contact-form textarea{min-height:100px;resize:vertical;margin-bottom:18px;}
+  .contact-form .btn{width:100%;justify-content:center;padding:15px;font-size:16px;}
+  .form-note{font-size:12px;color:var(--ink-500);margin-top:12px;text-align:center;}
+  .form-success{display:none;background:var(--orange-50);border:1px solid var(--orange-500);border-radius:16px;padding:24px;text-align:center;font-weight:700;color:var(--ink-900);}
+  .form-success.show{display:block;}
+  @media (max-width:900px){
+    .contact-inner{grid-template-columns:1fr;gap:40px;}
+    .form-row{grid-template-columns:1fr;}
+  }
+
+  /* ===== FOOTER (참고 이미지 스타일) ===== */
+  .site-footer{background:var(--ink-900);color:rgba(255,255,255,.7);padding:56px 24px 32px;text-align:center;}
+  .footer-sns{display:flex;justify-content:center;gap:14px;margin-bottom:36px;}
+  .footer-sns a{width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:15px;transition:background .2s;}
+  .footer-sns a:hover{background:var(--orange-500);}
+  .footer-brand{font-weight:800;font-size:17px;color:#fff;margin-bottom:6px;}
+  .footer-brand span{font-weight:600;color:rgba(255,255,255,.55);font-size:14px;margin-left:4px;}
+  .footer-block{font-size:13.5px;line-height:2;color:rgba(255,255,255,.55);margin-bottom:28px;}
+  .footer-block strong{color:rgba(255,255,255,.8);font-weight:700;}
+  .footer-links{display:flex;justify-content:center;gap:20px;font-size:13.5px;margin-bottom:28px;}
+  .footer-links a{text-decoration:none;color:rgba(255,255,255,.6);}
+  .footer-links a.strong{color:#fff;font-weight:700;}
+  .footer-compact{font-size:12.5px;line-height:2;color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.1);padding-top:24px;margin-bottom:16px;}
+  .footer-copy{font-size:12px;color:rgba(255,255,255,.35);}
+
+  /* ===== MOBILE STICKY BAR ===== */
+  .mobile-sticky-bar{position:fixed;left:0;right:0;bottom:0;display:none;z-index:90;box-shadow:0 -6px 24px rgba(20,22,28,.12);transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+  .mobile-sticky-bar.show{transform:translateY(0);}
+  .mobile-sticky-bar a{flex:1;text-align:center;padding:16px 0;font-weight:700;font-size:15px;text-decoration:none;}
+  .mobile-sticky-bar a:first-child{background:#fff;color:var(--ink-900);border-top:1px solid var(--ink-200);}
+  .mobile-sticky-bar a:last-child{background:var(--orange-500);color:#fff;}
+  @media (max-width:768px){.mobile-sticky-bar{display:flex;}}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="#hero" class="logo">
+      <span class="logo-main">이야기<span class="logo-accent">엔터테인먼트</span></span>
+      <span class="logo-sub">Story Entertainment</span>
+    </a>
+    <nav class="nav-desktop">
+      <a href="#portfolio">포트폴리오</a>
+      <a href="#about">소개</a>
+      <a href="#contents">공연·행사·교육</a>
+      <a href="#contact">문의·예약</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#contact" class="btn btn-pill">공연 문의하기</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="nav-mobile" id="mobileNav">
+    <a href="#portfolio">포트폴리오</a>
+    <a href="#about">소개</a>
+    <a href="#contents">공연·행사·교육</a>
+    <a href="#contact">문의·예약</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ===== 1. HERO : 영상 위 타이틀 ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-media">
+      <!-- TODO: 아래 media-placeholder를 실제 영상으로 교체
+        <video autoplay muted loop playsinline poster="poster.jpg">
+          <source src="hero.mp4" type="video/mp4">
+        </video>
+      -->
+      <div class="media-placeholder">
+        <div class="icon">▶</div>
+        <p>대표 공연 영상을 추가해주세요<br><span>권장: 1920×1080 이상, mp4, 자동재생/무음</span></p>
+      </div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="eyebrow">유치원 · 학교 · 기업 · 가족행사 전문 마술사</p>
+      <h1>보는 순간, <span class="accent">믿을 수 없는</span><br>마법이 시작됩니다</h1>
+      <p class="hero-sub">마술사 임휘구가 만드는 특별한 공연으로<br>잊지 못할 순간을 선물하세요.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">공연 문의하기 ↗</a>
+        <a href="#portfolio" class="btn btn-ghost">포트폴리오 보기</a>
+      </div>
+    </div>
+    <div class="scroll-cue">SCROLL<span></span></div>
+  </section>
+
+  <!-- ===== 2. 포트폴리오 사진 ===== -->
+  <section class="portfolio" id="portfolio">
+    <div class="container">
+      <p class="section-label reveal">PORTFOLIO</p>
+      <h2 class="reveal">임휘구 마술사의 무대</h2>
+      <p class="section-desc reveal">공연 현장의 생생한 순간들을 만나보세요.</p>
+      <div class="gallery-grid">
+        <div class="gallery-item reveal" data-img="1">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 1</p></div>
+        </div>
+        <div class="gallery-item reveal" data-img="2">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 2</p></div>
+        </div>
+        <div class="gallery-item reveal" data-img="3">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 3</p></div>
+        </div>
+        <div class="gallery-item reveal" data-img="4">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 4</p></div>
+        </div>
+        <div class="gallery-item reveal" data-img="5">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 5</p></div>
+        </div>
+        <div class="gallery-item reveal" data-img="6">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 6</p></div>
+        </div>
+        <div class="gallery-item reveal" data-img="7">
+          <div class="media-placeholder"><div class="icon">🖼️</div><p>공연 사진 7</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3. 고객에게 보여줄 문구 ===== -->
+  <section class="message" id="about">
+    <div class="container message-inner">
+      <p class="message-quote reveal">“ 아이의 눈이 반짝이는 순간,<br>어른의 마음이 다시 뛰는 순간 —<br>그 순간을 만드는 것이 제 일입니다 ”</p>
+      <p class="message-sign reveal">— 마술사 임휘구</p>
+    </div>
+  </section>
+
+  <!-- ===== 4. 대표 컨텐츠 : 공연 / 행사 / 교육체험 ===== -->
+  <section class="contents" id="contents">
+    <div class="container">
+      <p class="section-label reveal">CONTENTS</p>
+      <h2 class="reveal">대표 컨텐츠</h2>
+      <p class="section-desc reveal">행사 성격에 맞는 구성을 선택해보세요.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="performance">공연</button>
+        <button class="tab" data-tab="event">행사</button>
+        <button class="tab" data-tab="education">교육·체험</button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="performance">
+          <div class="content-grid">
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🎩</div><p>클로즈업 마술</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">CLOSE-UP</div>
+                <h3>클로즈업 마술</h3>
+                <p>관객 바로 앞에서 펼쳐지는 밀착 마술로 소규모 모임과 파티에 잘 어울립니다.</p>
+              </div>
+            </div>
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">✨</div><p>스테이지 마술쇼</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">STAGE SHOW</div>
+                <h3>스테이지 마술쇼</h3>
+                <p>대형 일루전과 참여형 마술을 섞은 무대 공연. 유치원·학교 행사에서 가장 많이 찾는 구성입니다.</p>
+              </div>
+            </div>
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🫧</div><p>매직 + 버블쇼</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">MAGIC + BUBBLE</div>
+                <h3>매직 + 버블쇼</h3>
+                <p>마술과 버블쇼를 결합한 구성으로 졸업식, 입학식, 가족행사에서 반응이 좋습니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-panel="event">
+          <div class="content-grid">
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🎤</div><p>행사 MC / 진행</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">MC</div>
+                <h3>행사 MC·진행</h3>
+                <p>기업·기관 행사, 축제, 개업식 등 다양한 현장에서 분위기를 이끄는 진행을 맡습니다.</p>
+              </div>
+            </div>
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🎉</div><p>레크리에이션</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">RECREATION</div>
+                <h3>레크리에이션</h3>
+                <p>마술을 접목한 레크리에이션 프로그램으로 단체 행사의 참여도를 높입니다.</p>
+              </div>
+            </div>
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🏢</div><p>기업·기관 행사</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">CORPORATE</div>
+                <h3>기업·기관 행사</h3>
+                <p>사내 행사, 개업 이벤트, 기념식 등 목적에 맞춘 맞춤 공연을 구성해드립니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-panel="education">
+          <div class="content-grid">
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">📚</div><p>마술 교육 프로그램</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">EDUCATION</div>
+                <h3>마술 교육 프로그램</h3>
+                <p>안전교육·인성교육 등 눈높이에 맞춘 스토리에 마술을 접목한 교육형 공연입니다.</p>
+              </div>
+            </div>
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🙌</div><p>마술 체험 클래스</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">EXPERIENCE</div>
+                <h3>마술 체험 클래스</h3>
+                <p>아이들이 직접 마술을 배우고 성공시켜보는 참여형 체험 프로그램입니다.</p>
+              </div>
+            </div>
+            <div class="content-card reveal">
+              <div class="card-img"><div class="media-placeholder"><div class="icon">🎈</div><p>체육대회·야외행사</p></div></div>
+              <div class="card-body">
+                <div class="card-badge">OUTDOOR</div>
+                <h3>체육대회·야외행사</h3>
+                <p>체육대회, 축제 등 야외 행사에 어울리는 이동형 체험 부스 및 공연을 진행합니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5. 공연 문의 및 예약 ===== -->
+  <section class="contact" id="contact">
+    <div class="container contact-inner">
+      <div class="contact-info">
+        <p class="section-label light reveal">CONTACT</p>
+        <h2 class="reveal">공연 문의 및 예약</h2>
+        <p class="reveal">행사일과 장소, 대상 인원만 알려주시면 빠르게 안내드립니다.</p>
+        <ul class="contact-list reveal">
+          <li>📞 010-7514-0592</li>
+          <li>✉️ magic_hg@naver.com</li>
+          <li>💬 카카오톡 채널 상담</li>
+        </ul>
+        <div class="sns-row reveal">
+          <a href="#" aria-label="블로그">B</a>
+          <a href="#" aria-label="인스타그램">IG</a>
+          <a href="#" aria-label="유튜브">▶</a>
+        </div>
+      </div>
+
+      <form class="contact-form reveal" id="contactForm">
+        <div class="form-row">
+          <div>
+            <label for="f-name">이름</label>
+            <input type="text" id="f-name" required placeholder="담당자 성함">
+          </div>
+          <div>
+            <label for="f-phone">연락처</label>
+            <input type="tel" id="f-phone" required placeholder="010-7514-0592">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="f-date">행사일</label>
+            <input type="date" id="f-date" required>
+          </div>
+          <div>
+            <label for="f-place">장소</label>
+            <input type="text" id="f-place" required placeholder="예: OO유치원 강당">
+          </div>
+        </div>
+        <label for="f-msg">문의 내용</label>
+        <textarea id="f-msg" placeholder="대상 연령, 인원, 원하시는 공연 구성을 알려주세요."></textarea>
+        <button type="submit" class="btn btn-dark">공연 문의하기 ↗</button>
+        <p class="form-note">남겨주신 개인정보는 상담 목적으로만 사용하며 상담 종료 후 파기합니다.</p>
+        <div class="form-success" id="formSuccess">문의가 접수되었습니다. 빠른 시간 내 연락드리겠습니다 🎉</div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== 6. FOOTER (참고 이미지 스타일 · 임시 정보) ===== -->
+<footer class="site-footer">
+  <div class="footer-sns">
+    <a href="#" aria-label="블로그">B</a>
+    <a href="#" aria-label="인스타그램">IG</a>
+    <a href="#" aria-label="유튜브">▶</a>
+  </div>
+
+  <div class="footer-brand">이야기엔터테인먼트 <span>Story Entertainment</span></div>
+  <div class="footer-block">
+    상호명: 이야기엔터테인먼트<br>
+    대표: 임휘구 | 사업자등록번호: 885-98-01732 | 대표번호: 010-7514-0592<br>
+    주소: 경기도 부천시 조마루로 372번길 22, 지하 1층<br>
+    이메일: magic_hg@naver.com
+  </div>
+
+  <div class="footer-links">
+    <a href="#">이용약관</a>
+    <a href="#" class="strong">개인정보처리방침</a>
+  </div>
+
+  <div class="footer-compact">
+    상호명: 이야기엔터테인먼트&nbsp; 대표자: 임휘구&nbsp; 사업장주소: 경기도 부천시 조마루로 372번길 22, 지하 1층&nbsp;
+    연락처: 010-7514-0592&nbsp; 사업자등록번호: 885-98-01732<br>
+    대표자 이메일: magic_hg@naver.com
+  </div>
+
+  <div class="footer-copy">Copyright &copy; 2026 이야기엔터테인먼트 All rights reserved.</div>
+</footer>
+
+<!-- ===== MOBILE STICKY BAR ===== -->
+<div class="mobile-sticky-bar" id="mobileBar">
+  <a href="tel:01075140592">📞 전화 문의</a>
+  <a href="#contact">공연 문의하기</a>
+</div>
+
+<!-- ===== LIGHTBOX ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="닫기">&times;</button>
+  <div class="lightbox-inner">
+    <div class="media-placeholder"><div class="icon">🖼️</div><p>선택한 사진이 여기에 크게 표시됩니다</p></div>
+  </div>
+</div>
+
+<!-- ===== SITE CONTENT DATA (admin.html 관리자 페이지에서 저장/수정) ===== -->
+<script type="application/json" id="site-content">
+{
+  "heroVideo": "",
+  "gallery": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "cards": {
+    "performance": [
+      "",
+      "",
+      ""
+    ],
+    "event": [
+      "",
+      "",
+      ""
+    ],
+    "education": [
+      "",
+      "",
+      ""
+    ]
+  }
+}
+</script>
+<script>
+  // 관리자 페이지(admin.html)에서 저장한 영상 링크·사진을 실제 화면에 반영합니다.
+  (function applySiteContent(){
+    const dataEl = document.getElementById('site-content');
+    if (!dataEl) return;
+    let data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+
+    function setImage(container, src, alt) {
+      if (!container || !src) return;
+      container.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = alt;
+      img.loading = 'lazy';
+      container.appendChild(img);
+    }
+
+    function buildHeroVideo(url) {
+      const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+      const vimeo = url.match(/vimeo\.com\/(\d+)/);
+      let el;
+      if (yt) {
+        el = document.createElement('iframe');
+        el.src = 'https://www.youtube.com/embed/' + yt[1] + '?autoplay=1&mute=1&loop=1&playlist=' + yt[1] + '&controls=0&playsinline=1';
+        el.allow = 'autoplay; encrypted-media';
+      } else if (vimeo) {
+        el = document.createElement('iframe');
+        el.src = 'https://player.vimeo.com/video/' + vimeo[1] + '?autoplay=1&muted=1&loop=1&background=1';
+        el.allow = 'autoplay; fullscreen';
+      } else {
+        el = document.createElement('video');
+        el.autoplay = true; el.muted = true; el.loop = true; el.playsInline = true;
+        const source = document.createElement('source');
+        source.src = url;
+        el.appendChild(source);
+      }
+      el.title = '대표 공연 영상';
+      return el;
+    }
+
+    if (data.heroVideo) {
+      const heroMedia = document.querySelector('.hero-media');
+      heroMedia.innerHTML = '';
+      heroMedia.appendChild(buildHeroVideo(data.heroVideo));
+    }
+
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    (data.gallery || []).forEach((src, i) => setImage(galleryItems[i], src, '포트폴리오 사진 ' + (i + 1)));
+
+    const cardGroups = {
+      performance: document.querySelectorAll('.tab-panel[data-panel="performance"] .card-img'),
+      event: document.querySelectorAll('.tab-panel[data-panel="event"] .card-img'),
+      education: document.querySelectorAll('.tab-panel[data-panel="education"] .card-img'),
+    };
+    Object.keys(cardGroups).forEach((key) => {
+      ((data.cards && data.cards[key]) || []).forEach((src, i) => setImage(cardGroups[key][i], src, key + ' 이미지 ' + (i + 1)));
+    });
+  })();
+</script>
+
+<script>
+  // 헤더 스크롤 효과 + 모바일 스티키바
+  const header = document.getElementById('siteHeader');
+  const mobileBar = document.getElementById('mobileBar');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    header.classList.toggle('scrolled', y > 10);
+    mobileBar.classList.toggle('show', y > 400);
+  }, { passive: true });
+
+  // 모바일 메뉴 토글
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileNav = document.getElementById('mobileNav');
+  hamburgerBtn.addEventListener('click', () => {
+    hamburgerBtn.classList.toggle('open');
+    mobileNav.classList.toggle('open');
+  });
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    hamburgerBtn.classList.remove('open');
+    mobileNav.classList.remove('open');
+  }));
+
+  // 대표 컨텐츠 탭 전환
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector(`.tab-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  // 스크롤 리빌 애니메이션
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // 포트폴리오 라이트박스 (클릭한 사진을 크게 표시)
+  const lightbox = document.getElementById('lightbox');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const lightboxInner = document.querySelector('.lightbox-inner');
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const img = item.querySelector('img');
+      lightboxInner.innerHTML = '';
+      if (img) {
+        const big = document.createElement('img');
+        big.src = img.src;
+        big.alt = img.alt;
+        big.style.width = '100%';
+        big.style.height = '100%';
+        big.style.objectFit = 'contain';
+        lightboxInner.appendChild(big);
+      } else {
+        lightboxInner.innerHTML = '<div class="media-placeholder"><div class="icon">🖼️</div><p>선택한 사진이 여기에 크게 표시됩니다</p></div>';
+      }
+      lightbox.classList.add('open');
+    });
+  });
+  lightboxClose.addEventListener('click', () => lightbox.classList.remove('open'));
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+
+  // 문의 폼 제출 (실제 전송 기능은 백엔드/이메일 서비스 연동 후 교체 필요)
+  const contactForm = document.getElementById('contactForm');
+  const formSuccess = document.getElementById('formSuccess');
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    contactForm.style.display = 'none';
+    formSuccess.classList.add('show');
+  });
+</script>
+
+</body>
+</html>

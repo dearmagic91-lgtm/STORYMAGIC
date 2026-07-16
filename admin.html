@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 페이지 | 이야기엔터테인먼트</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --orange-500:oklch(68% 0.19 42);
+    --orange-600:oklch(60% 0.19 42);
+    --orange-50:oklch(97% 0.03 42);
+    --ink-900:oklch(18% 0.01 280);
+    --ink-700:oklch(38% 0.01 280);
+    --ink-500:oklch(55% 0.01 280);
+    --ink-300:oklch(78% 0.01 280);
+    --ink-200:oklch(90% 0.006 280);
+    --ink-100:oklch(96% 0.004 280);
+    --paper:oklch(98.5% 0.006 70);
+    --danger:oklch(58% 0.19 25);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;margin:0;padding:0;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:var(--ink-100);color:var(--ink-900);min-height:100vh;}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 120px;}
+
+  /* ===== LOGIN ===== */
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-card{background:#fff;border-radius:24px;padding:44px 36px;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(20,22,28,.12);text-align:center;}
+  .login-card .badge{width:56px;height:56px;border-radius:16px;background:var(--orange-50);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px;}
+  .login-card h1{font-size:20px;font-weight:800;margin-bottom:8px;letter-spacing:-0.01em;}
+  .login-card p{font-size:14px;color:var(--ink-500);margin-bottom:24px;}
+  .login-card input{width:100%;border:1px solid var(--ink-200);background:var(--ink-100);border-radius:12px;padding:14px 16px;font-size:16px;text-align:center;letter-spacing:.1em;outline:none;margin-bottom:14px;font-family:inherit;}
+  .login-card input:focus{border-color:var(--orange-500);}
+  .login-card .btn{width:100%;}
+  .login-error{color:var(--danger);font-size:13px;margin-top:12px;min-height:16px;}
+
+  /* ===== SHARED ===== */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;padding:13px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s,opacity .2s;}
+  .btn-primary{background:var(--orange-500);color:#fff;}
+  .btn-primary:hover{background:var(--orange-600);}
+  .btn-primary:disabled{background:var(--ink-300);cursor:not-allowed;}
+  .btn-dark{background:var(--ink-900);color:#fff;}
+  .btn-dark:hover{background:#000;}
+  .btn-ghost{background:#fff;border:1px solid var(--ink-200);color:var(--ink-700);}
+  .btn-ghost:hover{background:var(--ink-100);}
+  .btn-sm{padding:8px 14px;font-size:13px;}
+
+  /* ===== TOPBAR ===== */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--ink-200);}
+  .topbar-inner{max-width:960px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-inner .title{font-weight:800;font-size:17px;letter-spacing:-0.01em;}
+  .topbar-inner .title span{color:var(--orange-500);}
+
+  /* ===== PANELS ===== */
+  .panel{background:#fff;border:1px solid var(--ink-200);border-radius:20px;padding:28px;margin-top:20px;}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+  .panel-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:var(--orange-500);color:#fff;font-size:13px;font-weight:800;margin-right:8px;}
+  .panel h2{font-size:17px;font-weight:800;display:inline-flex;align-items:center;letter-spacing:-0.01em;}
+  .panel .desc{font-size:13.5px;color:var(--ink-500);margin:8px 0 20px;line-height:1.6;}
+
+  .file-drop{border:1.5px dashed var(--ink-300);border-radius:16px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;}
+  .file-drop:hover,.file-drop.drag{border-color:var(--orange-500);background:var(--orange-50);}
+  .file-drop input{display:none;}
+  .file-drop .icon{font-size:26px;margin-bottom:8px;}
+  .file-drop .main{font-weight:700;font-size:14.5px;}
+  .file-drop .sub{font-size:12.5px;color:var(--ink-500);margin-top:4px;}
+  .file-status{margin-top:14px;font-size:13.5px;color:var(--ink-700);background:var(--ink-100);border-radius:10px;padding:10px 14px;display:none;}
+  .file-status.show{display:block;}
+
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink-700);margin-bottom:8px;}
+  .field input[type=text]{width:100%;border:1px solid var(--ink-200);background:var(--ink-100);border-radius:12px;padding:13px 16px;font-size:15px;font-family:inherit;outline:none;}
+  .field input[type=text]:focus{border-color:var(--orange-500);}
+  .video-preview{margin-top:16px;aspect-ratio:16/9;max-width:420px;border-radius:14px;overflow:hidden;background:var(--ink-100);display:flex;align-items:center;justify-content:center;color:var(--ink-500);font-size:13px;text-align:center;padding:16px;}
+  .video-preview iframe,.video-preview video{width:100%;height:100%;border:0;object-fit:cover;}
+
+  .group-title{font-size:13.5px;font-weight:700;color:var(--ink-700);margin:22px 0 12px;}
+  .group-title:first-child{margin-top:0;}
+  .slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;}
+  .slot{position:relative;aspect-ratio:1;border:1.5px dashed var(--ink-300);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .2s;background:var(--ink-100);}
+  .slot:hover{border-color:var(--orange-500);}
+  .slot input{display:none;}
+  .slot .placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink-500);font-size:11px;text-align:center;padding:6px;gap:4px;}
+  .slot img{width:100%;height:100%;object-fit:cover;display:none;}
+  .slot.filled{border-style:solid;border-color:var(--ink-200);}
+  .slot.filled img{display:block;}
+  .slot.filled .placeholder{display:none;}
+  .slot .remove{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:999px;background:rgba(20,20,20,.65);color:#fff;border:none;font-size:13px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+  .slot.filled .remove{display:flex;}
+
+  .save-bar{position:sticky;bottom:0;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-top:1px solid var(--ink-200);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:32px;border-radius:20px 20px 0 0;}
+  .save-bar .note{font-size:12.5px;color:var(--ink-500);}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120%);background:var(--ink-900);color:#fff;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:600;z-index:100;transition:transform .3s cubic-bezier(.22,1,.36,1);box-shadow:0 12px 30px rgba(0,0,0,.25);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:640px){
+    .panel{padding:20px;}
+    .slot-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 로그인 화면 ===== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="badge">🔒</div>
+    <h1>관리자 페이지</h1>
+    <p>비밀번호를 입력해 주세요</p>
+    <input type="password" id="pwInput" inputmode="numeric" maxlength="20" placeholder="비밀번호" autocomplete="off">
+    <button class="btn btn-primary" id="loginBtn">로그인</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ===== 관리자 대시보드 ===== -->
+<div id="dashboard" style="display:none;">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="title">이야기엔터테인먼트 <span>관리자</span></div>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- STEP 0 : 파일 불러오기 -->
+    <div class="panel">
+      <div class="panel-head"><h2><span class="panel-num">1</span>홈페이지 파일 불러오기</h2></div>
+      <p class="desc">먼저 현재 사용 중인 홈페이지 HTML 파일(예: 임휘구마술_홈페이지.html)을 선택해주세요. 불러온 파일을 기준으로 영상·사진을 수정한 뒤, 새 파일로 저장(다운로드)합니다.</p>
+      <label class="file-drop" id="htmlDrop">
+        <input type="file" id="htmlFileInput" accept=".html,text/html">
+        <div class="icon">📄</div>
+        <div class="main">클릭하거나 파일을 끌어다 놓으세요</div>
+        <div class="sub">.html 파일만 가능</div>
+      </label>
+      <div class="file-status" id="fileStatus"></div>
+    </div>
+
+    <!-- STEP 1 : 히어로 영상 -->
+    <div class="panel">
+      <div class="panel-head"><h2><span class="panel-num">2</span>대표 영상 (히어로 영상)</h2></div>
+      <p class="desc">유튜브·비메오 링크 또는 mp4 영상 파일의 직접 링크(URL)를 붙여넣으면 홈페이지 맨 위 영상 자리에 자동으로 반영됩니다.</p>
+      <div class="field">
+        <label for="videoUrl">영상 링크</label>
+        <input type="text" id="videoUrl" placeholder="예: https://www.youtube.com/watch?v=xxxxxxxxxxx">
+      </div>
+      <div class="video-preview" id="videoPreview">링크를 입력하면 미리보기가 표시됩니다</div>
+    </div>
+
+    <!-- STEP 2 : 포트폴리오 사진 -->
+    <div class="panel">
+      <div class="panel-head"><h2><span class="panel-num">3</span>포트폴리오 사진 (최대 7장)</h2></div>
+      <p class="desc">칸을 클릭해 사진을 업로드하세요. 업로드한 사진은 자동으로 용량이 최적화되어 저장됩니다.</p>
+      <div class="slot-grid" id="gallerySlots"></div>
+    </div>
+
+    <!-- STEP 3 : 대표 컨텐츠 사진 -->
+    <div class="panel">
+      <div class="panel-head"><h2><span class="panel-num">4</span>대표 컨텐츠 사진</h2></div>
+      <p class="desc">공연 / 행사 / 교육·체험 탭에 표시되는 카드 사진입니다. 각 카테고리마다 3장씩 업로드할 수 있습니다.</p>
+      <div class="group-title">공연</div>
+      <div class="slot-grid" id="cardSlots-performance"></div>
+      <div class="group-title">행사</div>
+      <div class="slot-grid" id="cardSlots-event"></div>
+      <div class="group-title">교육·체험</div>
+      <div class="slot-grid" id="cardSlots-education"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn btn-ghost btn-sm" id="restoreDraftBtn" style="display:none;">임시 저장본 불러오기</button>
+      <button class="btn btn-ghost btn-sm" id="resetBtn">전체 초기화</button>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <div class="note" id="saveNote">1번에서 파일을 먼저 불러와주세요.</div>
+    <button class="btn btn-dark" id="downloadBtn" disabled>변경사항 저장 (파일 다운로드)</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  // ===================== 로그인 =====================
+  const PW_HASH = '8cd0a5e42e99acd2352e15cf28b3592158d9f25778a262ddfb655f4c17e64c5d';
+  const loginScreen = document.getElementById('loginScreen');
+  const dashboard = document.getElementById('dashboard');
+  const pwInput = document.getElementById('pwInput');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginError = document.getElementById('loginError');
+
+  async function sha256(text){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function tryLogin(){
+    const val = pwInput.value.trim();
+    if (!val) return;
+    const hash = await sha256(val);
+    if (hash === PW_HASH) {
+      sessionStorage.setItem('hwigu_admin_authed', '1');
+      loginScreen.style.display = 'none';
+      dashboard.style.display = 'block';
+      loginError.textContent = '';
+      initDashboard();
+    } else {
+      loginError.textContent = '비밀번호가 올바르지 않습니다.';
+      pwInput.value = '';
+      pwInput.focus();
+    }
+  }
+  loginBtn.addEventListener('click', tryLogin);
+  pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('hwigu_admin_authed');
+    location.reload();
+  });
+
+  if (sessionStorage.getItem('hwigu_admin_authed') === '1') {
+    loginScreen.style.display = 'none';
+    dashboard.style.display = 'block';
+    initDashboard();
+  }
+
+  // ===================== 대시보드 =====================
+  let dashInitialized = false;
+  function initDashboard(){
+    if (dashInitialized) return;
+    dashInitialized = true;
+
+    const START_MARKER = '<script type="application/json" id="site-content">';
+    const END_MARKER = '<' + '/script>';
+    const DRAFT_KEY = 'hwigu_admin_draft_v1';
+
+    const state = {
+      fileName: null,
+      fullHtmlText: null,
+      heroVideo: '',
+      gallery: ['', '', '', '', '', '', ''],
+      cards: { performance: ['', '', ''], event: ['', '', ''], education: ['', '', ''] },
+    };
+
+    const toastEl = document.getElementById('toast');
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2400);
+    }
+
+    function extractSiteContent(html){
+      const startIdx = html.indexOf(START_MARKER);
+      if (startIdx === -1) return null;
+      const contentStart = startIdx + START_MARKER.length;
+      const endIdx = html.indexOf(END_MARKER, contentStart);
+      if (endIdx === -1) return null;
+      try { return JSON.parse(html.slice(contentStart, endIdx).trim()); } catch (e) { return null; }
+    }
+
+    function replaceSiteContent(html, dataObj){
+      const startIdx = html.indexOf(START_MARKER);
+      if (startIdx === -1) throw new Error('이 파일에서 site-content 블록을 찾을 수 없습니다. 임휘구마술_홈페이지.html 파일이 맞는지 확인해주세요.');
+      const contentStart = startIdx + START_MARKER.length;
+      const endIdx = html.indexOf(END_MARKER, contentStart);
+      if (endIdx === -1) throw new Error('site-content 블록 형식이 올바르지 않습니다.');
+      return html.slice(0, contentStart) + '\n' + JSON.stringify(dataObj, null, 2) + '\n' + html.slice(endIdx);
+    }
+
+    // ---------- 1. 파일 불러오기 ----------
+    const htmlDrop = document.getElementById('htmlDrop');
+    const htmlFileInput = document.getElementById('htmlFileInput');
+    const fileStatus = document.getElementById('fileStatus');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const saveNote = document.getElementById('saveNote');
+
+    function handleHtmlFile(file){
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        state.fullHtmlText = text;
+        state.fileName = file.name;
+        const existing = extractSiteContent(text);
+        if (existing) {
+          state.heroVideo = existing.heroVideo || '';
+          state.gallery = (existing.gallery && existing.gallery.length ? existing.gallery : state.gallery).slice(0, 7);
+          while (state.gallery.length < 7) state.gallery.push('');
+          ['performance', 'event', 'education'].forEach((key) => {
+            const arr = (existing.cards && existing.cards[key]) || ['', '', ''];
+            state.cards[key] = [arr[0] || '', arr[1] || '', arr[2] || ''];
+          });
+          fileStatus.textContent = '"' + file.name + '" 파일을 불러왔습니다. 기존에 저장된 영상/사진 정보가 있으면 자동으로 채워졌습니다.';
+        } else {
+          fileStatus.textContent = '"' + file.name + '" 파일을 불러왔습니다. 이 파일에는 관리자 데이터 블록이 없어 새로 저장할 수 없습니다. 최신 버전의 홈페이지 파일을 사용해주세요.';
+        }
+        fileStatus.classList.add('show');
+        downloadBtn.disabled = !existing;
+        saveNote.textContent = existing ? '수정 후 아래 버튼으로 저장하세요.' : '이 파일은 저장할 수 없습니다.';
+        renderVideoField();
+        renderAllSlots();
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+    htmlFileInput.addEventListener('change', (e) => handleHtmlFile(e.target.files[0]));
+    htmlDrop.addEventListener('dragover', (e) => { e.preventDefault(); htmlDrop.classList.add('drag'); });
+    htmlDrop.addEventListener('dragleave', () => htmlDrop.classList.remove('drag'));
+    htmlDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      htmlDrop.classList.remove('drag');
+      if (e.dataTransfer.files[0]) handleHtmlFile(e.dataTransfer.files[0]);
+    });
+
+    // ---------- 2. 영상 링크 ----------
+    const videoUrlInput = document.getElementById('videoUrl');
+    const videoPreview = document.getElementById('videoPreview');
+
+    function renderVideoField(){
+      videoUrlInput.value = state.heroVideo;
+      updateVideoPreview();
+    }
+    function updateVideoPreview(){
+      const url = state.heroVideo.trim();
+      videoPreview.innerHTML = '';
+      if (!url) {
+        videoPreview.textContent = '링크를 입력하면 미리보기가 표시됩니다';
+        return;
+      }
+      const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+      const vimeo = url.match(/vimeo\.com\/(\d+)/);
+      let el;
+      if (yt) {
+        el = document.createElement('iframe');
+        el.src = 'https://www.youtube.com/embed/' + yt[1];
+        el.allow = 'encrypted-media';
+      } else if (vimeo) {
+        el = document.createElement('iframe');
+        el.src = 'https://player.vimeo.com/video/' + vimeo[1];
+        el.allow = 'fullscreen';
+      } else if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
+        el = document.createElement('video');
+        el.src = url; el.controls = true; el.muted = true;
+      } else {
+        videoPreview.textContent = '유튜브·비메오 링크이거나 mp4/webm 파일 링크를 입력해주세요';
+        return;
+      }
+      videoPreview.appendChild(el);
+    }
+    videoUrlInput.addEventListener('input', () => {
+      state.heroVideo = videoUrlInput.value;
+      updateVideoPreview();
+      saveDraft();
+    });
+
+    // ---------- 3~4. 사진 업로드 슬롯 ----------
+    function compressImage(file, maxSize, quality){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let { width, height } = img;
+            if (width > maxSize || height > maxSize) {
+              if (width > height) { height = Math.round(height * maxSize / width); width = maxSize; }
+              else { width = Math.round(width * maxSize / height); height = maxSize; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => reject(new Error('이미지를 읽을 수 없습니다.'));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function buildSlot(getVal, setVal, onChange){
+      const slot = document.createElement('label');
+      slot.className = 'slot';
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      const img = document.createElement('img');
+      const placeholder = document.createElement('div');
+      placeholder.className = 'placeholder';
+      placeholder.innerHTML = '<span>📷</span><span>사진 추가</span>';
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'remove';
+      removeBtn.innerHTML = '&times;';
+
+      function refresh(){
+        const val = getVal();
+        if (val) { img.src = val; slot.classList.add('filled'); }
+        else { slot.classList.remove('filled'); }
+      }
+
+      input.addEventListener('change', async () => {
+        const file = input.files[0];
+        if (!file) return;
+        try {
+          const dataUrl = await compressImage(file, 1600, 0.82);
+          setVal(dataUrl);
+          refresh();
+          onChange();
+        } catch (err) {
+          toast(err.message || '이미지 처리 중 오류가 발생했습니다.');
+        }
+        input.value = '';
+      });
+      removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setVal('');
+        refresh();
+        onChange();
+      });
+
+      slot.appendChild(img);
+      slot.appendChild(placeholder);
+      slot.appendChild(removeBtn);
+      slot.appendChild(input);
+      refresh();
+      return slot;
+    }
+
+    const galleryEl = document.getElementById('gallerySlots');
+    function renderGallerySlots(){
+      galleryEl.innerHTML = '';
+      state.gallery.forEach((_, i) => {
+        galleryEl.appendChild(buildSlot(
+          () => state.gallery[i],
+          (v) => { state.gallery[i] = v; },
+          saveDraft
+        ));
+      });
+    }
+
+    function renderCardSlots(key){
+      const el = document.getElementById('cardSlots-' + key);
+      el.innerHTML = '';
+      state.cards[key].forEach((_, i) => {
+        el.appendChild(buildSlot(
+          () => state.cards[key][i],
+          (v) => { state.cards[key][i] = v; },
+          saveDraft
+        ));
+      });
+    }
+
+    function renderAllSlots(){
+      renderGallerySlots();
+      ['performance', 'event', 'education'].forEach(renderCardSlots);
+    }
+
+    // ---------- 임시 저장 (localStorage draft) ----------
+    const restoreDraftBtn = document.getElementById('restoreDraftBtn');
+    function saveDraft(){
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          heroVideo: state.heroVideo, gallery: state.gallery, cards: state.cards, savedAt: Date.now(),
+        }));
+      } catch (e) { /* 저장 공간 부족 시 조용히 무시 */ }
+    }
+    (function checkDraft(){
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (raw) {
+          const d = JSON.parse(raw);
+          const date = new Date(d.savedAt).toLocaleString('ko-KR');
+          restoreDraftBtn.textContent = '임시 저장본 불러오기 (' + date + ')';
+          restoreDraftBtn.style.display = 'inline-flex';
+        }
+      } catch (e) { /* ignore */ }
+    })();
+    restoreDraftBtn.addEventListener('click', () => {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        if (!confirm('임시 저장된 영상/사진 정보를 불러올까요? 현재 편집 중인 내용은 덮어씌워집니다.')) return;
+        const d = JSON.parse(raw);
+        state.heroVideo = d.heroVideo || '';
+        state.gallery = d.gallery || state.gallery;
+        state.cards = d.cards || state.cards;
+        renderVideoField();
+        renderAllSlots();
+        toast('임시 저장본을 불러왔습니다.');
+      } catch (e) { toast('임시 저장본을 불러오지 못했습니다.'); }
+    });
+
+    // ---------- 전체 초기화 ----------
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('입력한 영상 링크와 업로드한 사진을 모두 지울까요? (불러온 파일 자체는 유지됩니다)')) return;
+      state.heroVideo = '';
+      state.gallery = ['', '', '', '', '', '', ''];
+      state.cards = { performance: ['', '', ''], event: ['', '', ''], education: ['', '', ''] };
+      renderVideoField();
+      renderAllSlots();
+      saveDraft();
+    });
+
+    // ---------- 저장 (다운로드) ----------
+    downloadBtn.addEventListener('click', () => {
+      if (!state.fullHtmlText) return;
+      try {
+        const dataObj = { heroVideo: state.heroVideo.trim(), gallery: state.gallery, cards: state.cards };
+        const finalHtml = replaceSiteContent(state.fullHtmlText, dataObj);
+        const blob = new Blob([finalHtml], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = state.fileName || '임휘구마술_홈페이지.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast('파일이 다운로드되었습니다. 기존 홈페이지 파일을 이 파일로 교체해주세요.');
+      } catch (err) {
+        toast(err.message || '저장 중 오류가 발생했습니다.');
+      }
+    });
+
+    renderAllSlots();
+  }
+})();
+</script>
+
+</body>
+</html>
