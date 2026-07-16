@@ -267,7 +267,7 @@
   }
 
   function goToDashboardOrConnect(){
-    const token = sessionStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       dashboard.style.display = 'block';
       initDashboard();
@@ -281,7 +281,7 @@
     if (!val) return;
     const hash = await sha256(val);
     if (hash === PW_HASH) {
-      sessionStorage.setItem('hwigu_admin_authed', '1');
+      localStorage.setItem('hwigu_admin_authed', '1');
       loginScreen.style.display = 'none';
       loginError.textContent = '';
       goToDashboardOrConnect();
@@ -307,7 +307,7 @@
     connectError.textContent = '';
     try {
       await fetchIndexFile(val);
-      sessionStorage.setItem(TOKEN_KEY, val);
+      localStorage.setItem(TOKEN_KEY, val);
       connectScreen.style.display = 'none';
       dashboard.style.display = 'block';
       initDashboard();
@@ -322,12 +322,12 @@
   tokenInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryConnect(); });
 
   document.getElementById('logoutBtn').addEventListener('click', () => {
-    sessionStorage.removeItem('hwigu_admin_authed');
-    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('hwigu_admin_authed');
+    localStorage.removeItem(TOKEN_KEY);
     location.reload();
   });
 
-  if (sessionStorage.getItem('hwigu_admin_authed') === '1') {
+  if (localStorage.getItem('hwigu_admin_authed') === '1') {
     loginScreen.style.display = 'none';
     goToDashboardOrConnect();
   }
@@ -377,7 +377,7 @@
     }
 
     // ---------- 1. GitHub에서 불러오기 ----------
-    const token = sessionStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
     const loadStatusEl = document.getElementById('loadStatus');
     const publishBtn = document.getElementById('publishBtn');
     const saveNote = document.getElementById('saveNote');
